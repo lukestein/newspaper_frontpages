@@ -1,34 +1,43 @@
-import logging
-import logging.handlers
 import os
-
 import requests
+import zipfile
+import datetime
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger_file_handler = logging.handlers.RotatingFileHandler(
-    "status.log",
-    maxBytes=1024 * 1024,
-    backupCount=1,
-    encoding="utf8",
-)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger_file_handler.setFormatter(formatter)
-logger.addHandler(logger_file_handler)
+def download_newspapers(daynumber, newspapers = ["NY_NYT"], zip=True, zipfile_name = "newspapers.zip", keepfiles=True, showprogress=True):
+    if zip and os.path.exists(zipfile_name):
+        os.remove(zipfile_name)
 
-try:
-    SOME_SECRET = os.environ["SOME_SECRET"]
-except KeyError:
-    SOME_SECRET = "Token not available!"
-    #logger.info("Token not available!")
-    #raise
+    for n in newspapers:
+        
+        # PDF URL
+        # https://cdn.freedomforum.org/dfp/pdf15/AUT_SN.pdf
+        
+        url = f"https://cdn.freedomforum.org/dfp/jpg{daynumber}/lg/{n}.jpg"
+        filename = f"{n}.jpg"
 
+        if showprogress:
+            print(f"Downloading {url} to {filename}")
+        response = requests.get(url)
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+        
+        if zip:
+            with zipfile.ZipFile(zipfile_name, "a") as zipf:
+                zipf.write(filename)
+
+        if not keepfiles:
+            os.remove(filename)
 
 if __name__ == "__main__":
-    logger.info(f"Token value: {SOME_SECRET}")
-
-    r = requests.get('https://weather.talkpython.fm/api/weather/?city=Berlin&country=DE')
-    if r.status_code == 200:
-        data = r.json()
-        temperature = data["forecast"]["temp"]
-        logger.info(f'Weather in Berlin: {temperature}')
+    newspapers = ["CA_LAT",
+                "DC_WP",
+                "IL_CT",
+                "JPN_JT",
+                "MA_BG",
+                "NY_DN",
+                "NY_NYT",
+                "UAE_GN",
+                "UK_MAIL",
+                "WSJ",]
+    daynumber = datetime.date.today().day
+    download_newspapers(daynumber, newspapers=newspapers, keepfiles=False)
