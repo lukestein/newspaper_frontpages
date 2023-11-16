@@ -12,8 +12,9 @@ def download_newspapers(daynumber, newspapers = ["NY_NYT"], zip=True, zipfile_na
         # PDF URL
         # https://cdn.freedomforum.org/dfp/pdf15/AUT_SN.pdf
         
-        url = f"https://cdn.freedomforum.org/dfp/jpg{daynumber}/lg/{n}.jpg"
-        filename = f"{n}.jpg"
+        url = f"https://cdn.freedomforum.org/dfp/pdf{daynumber}/{n}.pdf"
+        #url = f"https://cdn.freedomforum.org/dfp/jpg{daynumber}/lg/{n}.jpg"
+        filename = f"{n}.pdf"
 
         if showprogress:
             print(f"Downloading {url} to {filename}")
@@ -40,4 +41,4 @@ if __name__ == "__main__":
                 "UK_MAIL",
                 "WSJ",]
     daynumber = datetime.date.today().day
-    download_newspapers(daynumber, newspapers=newspapers, keepfiles=False)
+    download_newspapers(daynumber, newspapers=newspapers, keepfiles=True)
